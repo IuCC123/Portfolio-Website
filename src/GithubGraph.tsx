@@ -16,12 +16,14 @@ const weeksInGraph = 53;
 const daysInWeek = 7;
 
 function emptyContributions() {
-  return Array.from({ length: weeksInGraph * daysInWeek }, (_, index) => ({
-    count: 0,
-    date: "",
-    level: 0,
-    key: `empty-${index}`,
-  }));
+  return Array.from({ length: weeksInGraph }, (_, weekIndex) =>
+    Array.from({ length: daysInWeek }, (_, dayIndex) => ({
+      count: 0,
+      date: "",
+      level: 0,
+      key: `empty-${weekIndex}-${dayIndex}`,
+    })),
+  );
 }
 
 function makeGraph(contributions: Contribution[]) {
