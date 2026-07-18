@@ -146,6 +146,7 @@ function HomePage() {
             ambientEffect="twinkle"
             ambientIntensity={0.7}
             showLegend
+            showAccount={false}
           />
         </section>
 
