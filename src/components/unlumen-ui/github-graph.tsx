@@ -180,6 +180,17 @@ function formatContributionLabel(contribution: GithubContributionCell): string {
   return `${contribution.count} ${label} · ${date}`;
 }
 
+function formatMonthLabel(week: GithubContributionWeek): string | null {
+  const monthStart = week.find(
+    (contribution) => dateFromISO(contribution.date)?.getUTCDate() === 1,
+  );
+  const firstDay = week[0];
+  const date = dateFromISO(monthStart?.date ?? firstDay?.date ?? "");
+
+  if (!date) return null;
+  return new Intl.DateTimeFormat("en", { month: "short" }).format(date);
+}
+
 function getCellDelay(
   animation: GithubGraphAnimation,
   weekIndex: number,
@@ -432,13 +443,42 @@ export function GithubGraph({
 
       {resource.status === "ready" && weeks.length > 0 && (
         <div className="overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <div
-            className="relative flex min-w-max"
-            style={{ gap: cellGap }}
-            role="grid"
-            aria-label={`GitHub contributions for ${normalizedAccount ?? account}`}
-            onMouseLeave={() => setHoveredContribution(null)}
-          >
+          <div className="min-w-max">
+            <div
+              className="relative mb-2 h-4 text-[11px] leading-4 text-muted-foreground"
+              style={{
+                width: weeks.length * cellSize + (weeks.length - 1) * cellGap,
+              }}
+              aria-hidden="true"
+            >
+              {weeks.map((week, weekIndex) => {
+                const label = formatMonthLabel(week);
+                const isFirstWeek = weekIndex === 0;
+                const hasMonthStart = week.some(
+                  (contribution) =>
+                    dateFromISO(contribution.date)?.getUTCDate() === 1,
+                );
+
+                if (!label || (!isFirstWeek && !hasMonthStart)) return null;
+
+                return (
+                  <span
+                    key={`${week[0]?.date}-month`}
+                    className="absolute whitespace-nowrap"
+                    style={{ left: weekIndex * (cellSize + cellGap) }}
+                  >
+                    {label}
+                  </span>
+                );
+              })}
+            </div>
+            <div
+              className="relative flex"
+              style={{ gap: cellGap }}
+              role="grid"
+              aria-label={`GitHub contributions for ${normalizedAccount ?? account}`}
+              onMouseLeave={() => setHoveredContribution(null)}
+            >
             {weeks.map((week, weekIndex) => (
               <div
                 key={`${animationKey}-${weekIndex}`}
@@ -575,6 +615,7 @@ export function GithubGraph({
                 </motion.span>
               )}
             </AnimatePresence>
+            </div>
           </div>
         </div>
       )}
