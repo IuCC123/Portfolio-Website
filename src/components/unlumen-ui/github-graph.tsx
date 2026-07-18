@@ -63,7 +63,7 @@ const VARIANTS: Record<
   GithubGraphVariant,
   [string, string, string, string, string]
 > = {
-  github: ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"],
+  github: ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"],
   graphite: ["#eeeeee", "#cccccc", "#969696", "#5f5f5f", "#171717"],
   ocean: ["#e6f5ff", "#b4e2ff", "#62bdf5", "#2585d8", "#124e93"],
   violet: ["#f2eaff", "#dcc5ff", "#b486ff", "#8355df", "#52269c"],
