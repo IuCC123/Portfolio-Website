@@ -8,6 +8,7 @@ import {
   SiOsu,
 } from "react-icons/si";
 import { LuArrowDown, LuExternalLink, LuMail } from "react-icons/lu";
+import { GithubGraph } from "@/components/unlumen-ui/github-graph";
 import "./styles.css";
 
 type LinkItem = {
@@ -20,7 +21,6 @@ type LinkItem = {
 };
 
 const TechSections = React.lazy(() => import("./TechSections"));
-const GithubGraph = React.lazy(() => import("./GithubGraph"));
 
 function HomePage() {
   const projectLinks: LinkItem[] = [
@@ -133,9 +133,21 @@ function HomePage() {
           </div>
         </div>
 
-        <Suspense fallback={<div className="github-graph-placeholder" aria-hidden="true" />}>
-          <GithubGraph />
-        </Suspense>
+        <section className="github-activity" aria-label="GitHub activity">
+          <GithubGraph
+            account="IuCC123"
+            months={6}
+            variant="github"
+            animation="cascade"
+            animationSpeed={1.4}
+            cellSize={14}
+            cellGap={3}
+            cellRadius={4}
+            ambientEffect="twinkle"
+            ambientIntensity={0.7}
+            showLegend
+          />
+        </section>
 
         <Suspense fallback={<div className="stack-placeholder" aria-hidden="true" />}>
           <TechSections />
