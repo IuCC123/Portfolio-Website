@@ -30,6 +30,16 @@ Create a production build:
 bun run build
 ```
 
+## Deploy to Vercel
+
+Import this repository in Vercel and set the project root to this folder. The included `vercel.json` configures the Vite build, serves `dist`, and provides a single-page-app fallback for client-side routes.
+
+Alternatively, from an authenticated terminal:
+
+```bash
+npx vercel --prod
+```
+
 Preview the production build locally:
 
 ```bash

@@ -20,6 +20,7 @@ type LinkItem = {
 };
 
 const TechSections = React.lazy(() => import("./TechSections"));
+const GithubGraph = React.lazy(() => import("./GithubGraph"));
 
 function HomePage() {
   const projectLinks: LinkItem[] = [
@@ -131,6 +132,10 @@ function HomePage() {
             })}
           </div>
         </div>
+
+        <Suspense fallback={<div className="github-graph-placeholder" aria-hidden="true" />}>
+          <GithubGraph />
+        </Suspense>
 
         <Suspense fallback={<div className="stack-placeholder" aria-hidden="true" />}>
           <TechSections />
