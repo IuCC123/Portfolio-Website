@@ -31,7 +31,7 @@ function HomePage() {
       color: "#00a672",
       description:
         "Free Minecraft hosting with a browser dashboard for launching and managing Paper, Spigot, and Fabric servers.",
-      previewImage: "/swiftservers-preview.webp",
+      previewImage: "/swift-new.jpeg",
     },
   ];
 
