@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { IconType } from "react-icons";
+import { Accordion } from "@/components/interior/accordion";
 import {
   SiAndroidstudio,
   SiArduino,
@@ -92,27 +93,36 @@ const sections: Array<{ title: string; items: TechItem[] }> = [
 ];
 
 export default function TechSections() {
-  return (
-    <div className="stack-sections">
-      {sections.map((section) => (
-        <section key={section.title} className="stack-section">
-          <h2>{section.title}</h2>
-          <div className="tech-grid">
-            {section.items.map((item) => (
-              <div
-                key={item.label}
-                className="tech-item"
-                style={{ "--hover-color": item.color } as CSSProperties}
-              >
-                <span className="tech-icon" aria-hidden="true">
-                  <item.icon />
-                </span>
-                <span>{item.label}</span>
-              </div>
-            ))}
+  const items = sections.map((section) => ({
+    id: section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    title: section.title,
+    meta: `${section.items.length} tools`,
+    content: (
+      <div className="tech-grid">
+        {section.items.map((item) => (
+          <div
+            key={item.label}
+            className="tech-item"
+            style={{ "--hover-color": item.color } as CSSProperties}
+          >
+            <span className="tech-icon" aria-hidden="true">
+              <item.icon />
+            </span>
+            <span>{item.label}</span>
           </div>
-        </section>
-      ))}
-    </div>
+        ))}
+      </div>
+    ),
+  }));
+
+  return (
+    <Accordion
+      items={items}
+      type="multiple"
+      defaultOpen={["languages", "frameworks-libraries"]}
+      maxPanelHeight={360}
+      headingLevel={3}
+      className="stack-accordion"
+    />
   );
 }

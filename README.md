@@ -1,14 +1,17 @@
 # IuCC Portfolio
 
-My portfolio built with Bun, React, Vite, and TanStack Router.
+My portfolio, built with Bun, React, Vite, Tailwind CSS, and Motion.
 
 ## Stack
 
 - Bun
 - React
-- TanStack Router
 - Vite
 - TypeScript
+- Tailwind CSS
+- Motion
+- Interior.dev components
+- Morphicons
 
 ## Development
 
@@ -50,12 +53,15 @@ bun run preview
 
 ```text
 src/
-  main.tsx           App entry and top-level page content
-  TechSections.tsx   Technology stack section
-  styles.css         Global styling
+  main.tsx                  App entry and page content
+  TechSections.tsx          Technology stack
+  styles.css                Global styles
+  components/
+    interior/               Interaction components
+    unlumen-ui/             GitHub activity graph
 public/
-  swiftservers-preview.webp
-  SwiftServers Homepage.png
+  new-bg.jpeg               Hero background
+  swift-new.jpeg            SwiftServers preview
 ```
 
 ## License

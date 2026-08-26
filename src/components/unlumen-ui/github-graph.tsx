@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
@@ -391,7 +389,7 @@ export function GithubGraph({
 
   const showTooltip = React.useCallback(
     (
-      element: HTMLButtonElement,
+      element: HTMLElement,
       contribution: GithubContributionCell,
       weekIndex: number,
       dayIndex: number,
@@ -475,146 +473,137 @@ export function GithubGraph({
             <div
               className="relative flex"
               style={{ gap: cellGap }}
-              role="grid"
-              aria-label={`GitHub contributions for ${normalizedAccount ?? account}`}
+              role="img"
+              aria-label={`GitHub contribution calendar for ${normalizedAccount ?? account}`}
               onMouseLeave={() => setHoveredContribution(null)}
             >
-            {weeks.map((week, weekIndex) => (
-              <div
-                key={`${animationKey}-${weekIndex}`}
-                className="grid grid-rows-7"
-                style={{ gap: cellGap }}
-                role="row"
-              >
-                {week.map((contribution, dayIndex) => {
-                  const label = formatContributionLabel(contribution);
-                  const entranceDelay = reducedMotion
-                    ? 0
-                    : getCellDelay(
-                        animation,
-                        weekIndex,
-                        dayIndex,
-                        animationSpeed,
-                      );
-                  const ambientMotion = getAmbientCellMotion(
-                    ambientEffect,
-                    ambientIntensity,
-                    weekIndex,
-                    dayIndex,
-                    entranceDelay,
-                    reducedMotion,
-                  );
-                  const distance = hoveredContribution
-                    ? Math.hypot(
-                        weekIndex - hoveredContribution.weekIndex,
-                        dayIndex - hoveredContribution.dayIndex,
-                      )
-                    : Infinity;
-                  const waveStrength = Math.max(0, 1 - distance / 3);
-                  const filter = `brightness(${1 + waveStrength * 0.45}) saturate(${1 + waveStrength * 0.2})`;
-                  return (
-                    <motion.button
-                      key={`${animationKey}-${contribution.date}`}
-                      type="button"
-                      role="gridcell"
-                      aria-label={label}
-                      className="relative outline-none ring-offset-2 ring-offset-background transition-shadow focus-visible:ring-2 focus-visible:ring-foreground/60"
-                      style={{
-                        width: cellSize,
-                        height: cellSize,
-                        borderRadius: resolvedCellRadius,
-                      }}
-                      initial={
-                        reducedMotion
-                          ? false
-                          : { opacity: 0, scale: 0.35, y: 4 }
-                      }
-                      animate={{ opacity: 1, scale: 1, y: 0, filter }}
-                      transition={{
-                        opacity: { duration: 0.14, delay: entranceDelay },
-                        y: {
-                          type: "spring",
-                          stiffness: 520,
-                          damping: 28,
-                          delay: entranceDelay,
-                        },
-                        scale: { type: "spring", stiffness: 900, damping: 32 },
-                        filter: { duration: 0.08, ease: "easeOut" },
-                      }}
-                      onMouseEnter={(event) =>
-                        showTooltip(
-                          event.currentTarget,
-                          contribution,
+              {weeks.map((week, weekIndex) => (
+                <div
+                  key={`${animationKey}-${weekIndex}`}
+                  className="grid grid-rows-7"
+                  style={{ gap: cellGap }}
+                >
+                  {week.map((contribution, dayIndex) => {
+                    const entranceDelay = reducedMotion
+                      ? 0
+                      : getCellDelay(
+                          animation,
                           weekIndex,
                           dayIndex,
-                          event,
+                          animationSpeed,
+                        );
+                    const ambientMotion = getAmbientCellMotion(
+                      ambientEffect,
+                      ambientIntensity,
+                      weekIndex,
+                      dayIndex,
+                      entranceDelay,
+                      reducedMotion,
+                    );
+                    const distance = hoveredContribution
+                      ? Math.hypot(
+                          weekIndex - hoveredContribution.weekIndex,
+                          dayIndex - hoveredContribution.dayIndex,
                         )
-                      }
-                      onFocus={(event) =>
-                        showTooltip(
-                          event.currentTarget,
-                          contribution,
-                          weekIndex,
-                          dayIndex,
-                        )
-                      }
-                      onBlur={() => setHoveredContribution(null)}
-                    >
-                      <motion.span
+                      : Infinity;
+                    const waveStrength = Math.max(0, 1 - distance / 3);
+                    const filter = `brightness(${1 + waveStrength * 0.45}) saturate(${1 + waveStrength * 0.2})`;
+                    return (
+                      <motion.div
+                        key={`${animationKey}-${contribution.date}`}
                         aria-hidden="true"
-                        className="pointer-events-none absolute inset-0"
+                        className="relative"
                         style={{
-                          backgroundColor: colors[contribution.level],
+                          width: cellSize,
+                          height: cellSize,
                           borderRadius: resolvedCellRadius,
                         }}
-                        animate={ambientMotion.animate}
-                        transition={ambientMotion.transition}
-                      />
-                    </motion.button>
-                  );
-                })}
-              </div>
-            ))}
-            <AnimatePresence>
-              {hoveredContribution && (
-                <motion.span
-                  role="tooltip"
-                  className="pointer-events-none fixed z-50 whitespace-nowrap rounded-full bg-foreground px-3 py-1.5 text-sm font-medium text-background ring-1 ring-foreground/15"
-                  initial={{
-                    opacity: 0,
-                    scale: 0.92,
-                    left: hoveredContribution.originLeft,
-                    top: hoveredContribution.originTop,
-                    x: "-50%",
-                    y:
-                      hoveredContribution.placement === "above"
-                        ? "-100%"
-                        : "0%",
-                  }}
-                  animate={{
-                    opacity: 1,
-                    scale: 1,
-                    left: hoveredContribution.left,
-                    top: hoveredContribution.top,
-                    x: "-50%",
-                    y:
-                      hoveredContribution.placement === "above"
-                        ? "-100%"
-                        : "0%",
-                  }}
-                  exit={{ opacity: 0, scale: 0.92 }}
-                  transition={{
-                    opacity: { duration: 0.12 },
-                    scale: { duration: 0.12 },
-                    left: { type: "spring", stiffness: 620, damping: 42 },
-                    top: { type: "spring", stiffness: 620, damping: 42 },
-                    y: { duration: 0.12 },
-                  }}
-                >
-                  {formatContributionLabel(hoveredContribution.contribution)}
-                </motion.span>
-              )}
-            </AnimatePresence>
+                        initial={
+                          reducedMotion
+                            ? false
+                            : { opacity: 0, scale: 0.35, y: 4 }
+                        }
+                        animate={{ opacity: 1, scale: 1, y: 0, filter }}
+                        transition={{
+                          opacity: { duration: 0.14, delay: entranceDelay },
+                          y: {
+                            type: "spring",
+                            stiffness: 520,
+                            damping: 28,
+                            delay: entranceDelay,
+                          },
+                          scale: {
+                            type: "spring",
+                            stiffness: 900,
+                            damping: 32,
+                          },
+                          filter: { duration: 0.08, ease: "easeOut" },
+                        }}
+                        onMouseEnter={(event) =>
+                          showTooltip(
+                            event.currentTarget,
+                            contribution,
+                            weekIndex,
+                            dayIndex,
+                            event,
+                          )
+                        }
+                      >
+                        <motion.span
+                          aria-hidden="true"
+                          className="pointer-events-none absolute inset-0"
+                          style={{
+                            backgroundColor: colors[contribution.level],
+                            borderRadius: resolvedCellRadius,
+                          }}
+                          animate={ambientMotion.animate}
+                          transition={ambientMotion.transition}
+                        />
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ))}
+              <AnimatePresence>
+                {hoveredContribution && (
+                  <motion.span
+                    role="tooltip"
+                    className="pointer-events-none fixed z-50 whitespace-nowrap rounded-full bg-foreground px-3 py-1.5 text-sm font-medium text-background ring-1 ring-foreground/15"
+                    initial={{
+                      opacity: 0,
+                      scale: 0.92,
+                      left: hoveredContribution.originLeft,
+                      top: hoveredContribution.originTop,
+                      x: "-50%",
+                      y:
+                        hoveredContribution.placement === "above"
+                          ? "-100%"
+                          : "0%",
+                    }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      left: hoveredContribution.left,
+                      top: hoveredContribution.top,
+                      x: "-50%",
+                      y:
+                        hoveredContribution.placement === "above"
+                          ? "-100%"
+                          : "0%",
+                    }}
+                    exit={{ opacity: 0, scale: 0.92 }}
+                    transition={{
+                      opacity: { duration: 0.12 },
+                      scale: { duration: 0.12 },
+                      left: { type: "spring", stiffness: 620, damping: 42 },
+                      top: { type: "spring", stiffness: 620, damping: 42 },
+                      y: { duration: 0.12 },
+                    }}
+                  >
+                    {formatContributionLabel(hoveredContribution.contribution)}
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>

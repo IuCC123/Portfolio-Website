@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/react-router": "^1.120.5",
+    "lucide": "^1.34.0",
+    "morphicons": "^1.7.0",
     "motion": "^12.42.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
