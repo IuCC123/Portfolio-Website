@@ -34,7 +34,7 @@ Create a production build:
 bun run build
 ```
 
-The build renders the page to static HTML (`scripts/prerender.mjs`), inlines the CSS and loads the app script after the first paint, so the page shows before any JavaScript runs.
+The build renders the page to static HTML (`scripts/prerender.mjs`), inlines the CSS and loads the app script after the first paint, so the page shows before any JavaScript runs. GitHub star counts are fetched once at build time. Set `GITHUB_TOKEN` to avoid GitHub's rate limit for unauthenticated requests; without it, a rate-limited build ships without star counts.
 
 ## Deploy to Vercel
 
@@ -67,10 +67,13 @@ src/
   assets/projects/          Project screenshots and icons
   lib/
     monogram.ts             3D signed-distance model of the IuCC monogram
+    github-stars.ts         Star count helpers
     idle.ts                 Defers work until the page is idle
   components/
     interior/               Interaction components
     unlumen-ui/             GitHub activity graph
+plugins/
+  github-stars.ts           Vite plugin that bakes in GitHub star counts
 scripts/
   prerender.mjs             Post-build prerender step
 public/

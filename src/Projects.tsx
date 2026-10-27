@@ -1,4 +1,6 @@
-import { ArrowUpRightIcon, GitHubIcon } from "./icons";
+import stars from "virtual:github-stars";
+import { ArrowUpRightIcon, GitHubIcon, StarIcon } from "./icons";
+import { formatStars, repoFromUrl } from "@/lib/github-stars";
 
 type ProjectLink = {
   label: "Website" | "Source";
@@ -85,6 +87,9 @@ const projects = [
 
 function ProjectCard({ project }: { project: Project }) {
   const [primary] = project.links;
+  const source = project.links.find((link) => link.label === "Source");
+  const repo = source ? repoFromUrl(source.href) : null;
+  const starCount = repo ? stars[repo] : undefined;
 
   return (
     <article className="project-card">
@@ -141,6 +146,18 @@ function ProjectCard({ project }: { project: Project }) {
               ) : null}
             </a>
           ))}
+          {source && starCount !== undefined ? (
+            <a
+              href={`${source.href}/stargazers`}
+              target="_blank"
+              rel="noreferrer"
+              className="project-stars"
+              aria-label={`${formatStars(starCount)} ${starCount === 1 ? "star" : "stars"} on GitHub`}
+            >
+              <StarIcon aria-hidden="true" />
+              {formatStars(starCount)}
+            </a>
+          ) : null}
         </div>
       </div>
     </article>
