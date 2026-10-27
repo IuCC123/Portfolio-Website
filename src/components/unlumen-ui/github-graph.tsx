@@ -621,9 +621,10 @@ export function GithubGraph({
       {showLegend && resource.status === "ready" && (
         <div
           className="mt-4 flex gap-1.5"
-          aria-label="Contribution activity legend"
+          role="img"
+          aria-label={`Contribution levels, from none to most, in ${colors.length} steps`}
         >
-          {colors.map((color, level) => (
+          {colors.map((color) => (
             <span
               key={color}
               style={{
@@ -632,7 +633,6 @@ export function GithubGraph({
                 backgroundColor: color,
                 borderRadius: resolvedCellRadius,
               }}
-              aria-label={`Level ${level}`}
             />
           ))}
         </div>
