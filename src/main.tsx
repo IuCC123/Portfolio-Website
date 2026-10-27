@@ -10,6 +10,7 @@ import { usePressDepth } from "@/components/interior/press-depth";
 import { TextReveal } from "@/components/interior/text-reveal";
 import { Tooltip, TooltipGroup } from "@/components/interior/tooltip-group";
 import { GithubGraph } from "@/components/unlumen-ui/github-graph";
+import AsciiHero from "./AsciiHero";
 import Projects from "./Projects";
 import TechSections from "./TechSections";
 import "@fontsource-variable/geist";
@@ -193,6 +194,7 @@ function ActivityGraph() {
 function HomePage() {
   const [activeSocial, setActiveSocial] = React.useState<string | null>(null);
   const [secondLine, setSecondLine] = React.useState(false);
+  const heroCopyRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => setSecondLine(true), 220);
@@ -253,7 +255,7 @@ function HomePage() {
 
       <main id="main">
         <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
+          <div ref={heroCopyRef} className="hero-copy">
             <h1 id="hero-title">
               <TextReveal
                 text="Hey, I'm IuCC."
@@ -295,6 +297,7 @@ function HomePage() {
               </PressableLink>
             </div>
           </div>
+          <AsciiHero avoidRef={heroCopyRef} />
         </section>
 
         <section

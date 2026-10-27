@@ -55,9 +55,12 @@ bun run preview
 ```text
 src/
   main.tsx                  App entry, layout and hero
+  AsciiHero.tsx             Animated ASCII monogram behind the hero
   Projects.tsx              Project cards
   TechSections.tsx          Technology stack
   styles.css                Global styles and theme tokens
+  lib/
+    monogram.ts             3D signed-distance model of the IuCC monogram
   components/
     interior/               Interaction components
     unlumen-ui/             GitHub activity graph
