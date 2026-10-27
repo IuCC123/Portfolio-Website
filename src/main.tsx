@@ -275,9 +275,9 @@ function HomePage() {
               />
             </h1>
             <p className="hero-summary">
-              Right now that means free Minecraft hosting, a media server you
-              run yourself, a small macOS app and a Rust proxy for AI
-              subscriptions. Most of it is open source.
+              I like building things people actually use, like Minecraft servers
+              that cost nothing and a media server that needs no account. Most
+              of it is open source.
             </p>
             <div className="hero-actions">
               <PressableLink
