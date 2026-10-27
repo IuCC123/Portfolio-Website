@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import type { IconType } from "react-icons";
-import { Accordion } from "@/components/interior/accordion";
 import {
   SiAndroidstudio,
   SiArduino,
@@ -37,7 +36,7 @@ type TechItem = {
   color: string;
 };
 
-const sections: Array<{ title: string; items: TechItem[] }> = [
+const sections: ReadonlyArray<{ title: string; items: TechItem[] }> = [
   {
     title: "Languages",
     items: [
@@ -49,7 +48,7 @@ const sections: Array<{ title: string; items: TechItem[] }> = [
     ],
   },
   {
-    title: "Frameworks & Libraries",
+    title: "Frameworks",
     items: [
       { icon: SiNodedotjs, label: "Node.js", color: "#5fa04e" },
       { icon: SiExpress, label: "Express.js", color: "#f5f5f5" },
@@ -70,7 +69,7 @@ const sections: Array<{ title: string; items: TechItem[] }> = [
     ],
   },
   {
-    title: "Tools & Platforms",
+    title: "Tools",
     items: [
       { icon: SiDocker, label: "Docker", color: "#2496ed" },
       { icon: SiGit, label: "Git", color: "#f05032" },
@@ -81,7 +80,7 @@ const sections: Array<{ title: string; items: TechItem[] }> = [
     ],
   },
   {
-    title: "Other Technologies",
+    title: "Other",
     items: [
       { icon: SiArduino, label: "Arduino", color: "#00878f" },
       { icon: SiUnity, label: "Unity", color: "#f5f5f5" },
@@ -93,36 +92,25 @@ const sections: Array<{ title: string; items: TechItem[] }> = [
 ];
 
 export default function TechSections() {
-  const items = sections.map((section) => ({
-    id: section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-    title: section.title,
-    meta: `${section.items.length} tools`,
-    content: (
-      <div className="tech-grid">
-        {section.items.map((item) => (
-          <div
-            key={item.label}
-            className="tech-item"
-            style={{ "--hover-color": item.color } as CSSProperties}
-          >
-            <span className="tech-icon" aria-hidden="true">
-              <item.icon />
-            </span>
-            <span>{item.label}</span>
-          </div>
-        ))}
-      </div>
-    ),
-  }));
-
   return (
-    <Accordion
-      items={items}
-      type="multiple"
-      defaultOpen={["languages", "frameworks-libraries"]}
-      maxPanelHeight={360}
-      headingLevel={3}
-      className="stack-accordion"
-    />
+    <div className="stack-list">
+      {sections.map((section) => (
+        <div key={section.title} className="stack-row">
+          <h3>{section.title}</h3>
+          <ul className="tech-grid">
+            {section.items.map((item) => (
+              <li
+                key={item.label}
+                className="tech-item"
+                style={{ "--brand": item.color } as CSSProperties}
+              >
+                <item.icon aria-hidden="true" />
+                {item.label}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }

@@ -1,16 +1,19 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ArrowUpRight, ExternalLink, Mail, Send } from "lucide";
+import { ArrowDown, Mail, Send } from "lucide";
 import { MorphIcon, type IconNode } from "morphicons/react";
 import { motion, useReducedMotion } from "motion/react";
 import type { IconType } from "react-icons";
+import { LuArrowUpRight } from "react-icons/lu";
 import { SiDiscord, SiGithub, SiOsu } from "react-icons/si";
-import { BlurUpImage } from "@/components/interior/blur-up-image";
 import { usePressDepth } from "@/components/interior/press-depth";
 import { TextReveal } from "@/components/interior/text-reveal";
 import { Tooltip, TooltipGroup } from "@/components/interior/tooltip-group";
 import { GithubGraph } from "@/components/unlumen-ui/github-graph";
+import Projects from "./Projects";
 import TechSections from "./TechSections";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
 import "./styles.css";
 
 type SocialLink = {
@@ -21,14 +24,6 @@ type SocialLink = {
   | { kind: "brand"; icon: IconType }
   | { kind: "morph"; icon: IconNode; hoverIcon: IconNode }
 );
-
-const project = {
-  href: "https://swiftservers.org",
-  label: "SwiftServers",
-  description:
-    "Free Minecraft hosting with a browser dashboard for launching and managing Paper, Spigot, and Fabric servers.",
-  previewImage: "/swift-new.jpeg",
-} as const;
 
 const socialLinks = [
   {
@@ -44,7 +39,7 @@ const socialLinks = [
     kind: "morph",
     icon: Mail,
     hoverIcon: Send,
-    color: "#ea4335",
+    color: "#35d5a4",
   },
   {
     href: "https://discord.com/users/841362272139214848",
@@ -65,23 +60,21 @@ const socialLinks = [
 type PressableLinkProps = {
   href: string;
   children: React.ReactNode;
+  className: string;
+  brandIcon?: IconType;
   icon?: IconNode;
   hoverIcon?: IconNode;
-  brandIcon?: IconType;
-  className?: string;
-  target?: "_blank";
-  rel?: string;
+  external?: boolean;
 };
 
 function PressableLink({
   href,
   children,
+  className,
+  brandIcon: BrandIcon,
   icon,
   hoverIcon,
-  brandIcon: BrandIcon,
-  className = "",
-  target,
-  rel,
+  external = false,
 }: PressableLinkProps) {
   const reduced = useReducedMotion();
   const { pressed, origin, ref, bind } = usePressDepth();
@@ -93,12 +86,12 @@ function PressableLink({
     <motion.a
       ref={ref}
       href={href}
-      target={target}
-      rel={rel}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
       className={className}
       initial={false}
       animate={{
-        y: pressed ? 3 : 0,
+        y: pressed ? 2 : 0,
         rotateX: lean ? -lean.y * 4 : 0,
         rotateY: lean ? lean.x * 4 : 0,
       }}
@@ -117,11 +110,11 @@ function PressableLink({
         releasePress();
       }}
     >
-      {children}
       {BrandIcon ? <BrandIcon aria-hidden="true" /> : null}
-      {!BrandIcon && icon && hoverIcon ? (
+      {children}
+      {icon ? (
         <MorphIcon
-          icon={active ? hoverIcon : icon}
+          icon={active && hoverIcon ? hoverIcon : icon}
           size={16}
           strokeWidth={2}
           spring="snappy"
@@ -132,24 +125,99 @@ function PressableLink({
   );
 }
 
-function HomePage() {
-  const [activeSocial, setActiveSocial] = React.useState<string | null>(null);
-  const [projectActive, setProjectActive] = React.useState(false);
+function SectionHeading({
+  id,
+  title,
+  link,
+}: {
+  id: string;
+  title: string;
+  link?: { href: string; label: string };
+}) {
+  return (
+    <div className="section-heading">
+      <h2 id={id}>{title}</h2>
+      {link ? (
+        <a href={link.href} target="_blank" rel="noreferrer">
+          {link.label}
+          <LuArrowUpRight aria-hidden="true" />
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
+const GRAPH_CELL = 13;
+const GRAPH_GAP = 3;
+const DAYS_PER_MONTH = 30.44;
+
+function ActivityGraph() {
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const [months, setMonths] = React.useState(12);
+
+  React.useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const weeks = Math.floor(
+        (entry.contentRect.width + GRAPH_GAP) / (GRAPH_CELL + GRAPH_GAP),
+      );
+      // Two spare columns cover the partial weeks at each end of the range.
+      const fit = Math.floor(((weeks - 2) * 7) / DAYS_PER_MONTH);
+      setMonths(Math.max(3, Math.min(12, fit)));
+    });
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <main id="top" className="page-shell">
-      <header className="site-header" aria-label="Primary navigation">
-        <a className="wordmark" href="#top" aria-label="IuCC, back to top">
-          IuCC
+    <div ref={panelRef} className="panel github-activity">
+      <GithubGraph
+        account="IuCC123"
+        months={months}
+        variant="oled"
+        animation="cascade"
+        animationSpeed={1.4}
+        cellSize={GRAPH_CELL}
+        cellGap={GRAPH_GAP}
+        cellRadius={3}
+        ambientEffect="twinkle"
+        ambientIntensity={0.6}
+        showLegend
+        showAccount={false}
+      />
+    </div>
+  );
+}
+
+function HomePage() {
+  const [activeSocial, setActiveSocial] = React.useState<string | null>(null);
+  const [secondLine, setSecondLine] = React.useState(false);
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setSecondLine(true), 220);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  return (
+    <div id="top" className="page">
+      <a className="skip-link" href="#main">
+        Skip to content
+      </a>
+
+      <header className="site-header">
+        <a className="brand" href="#top" aria-label="IuCC, back to top">
+          <img src="/favicon.svg" alt="" width={28} height={28} />
+          <span>IuCC</span>
         </a>
 
-        <nav className="section-nav" aria-label="Page sections">
-          <a href="#project">Project</a>
+        <nav className="site-nav" aria-label="Page sections">
+          <a href="#projects">Projects</a>
           <a href="#activity">Activity</a>
           <a href="#stack">Stack</a>
         </nav>
 
-        <TooltipGroup className="social-tools">
+        <TooltipGroup className="socials">
           {socialLinks.map((link) => (
             <Tooltip key={link.label} label={link.label} side="bottom">
               <a
@@ -158,7 +226,7 @@ function HomePage() {
                 rel={link.href.startsWith("mailto:") ? undefined : "noreferrer"}
                 aria-label={link.label}
                 className="icon-link"
-                style={{ "--hover-color": link.color } as React.CSSProperties}
+                style={{ "--brand": link.color } as React.CSSProperties}
                 onPointerEnter={() => setActiveSocial(link.label)}
                 onPointerLeave={() => setActiveSocial(null)}
                 onFocus={() => setActiveSocial(link.label)}
@@ -171,8 +239,8 @@ function HomePage() {
                     icon={
                       activeSocial === link.label ? link.hoverIcon : link.icon
                     }
-                    size={17}
-                    strokeWidth={1.8}
+                    size={16}
+                    strokeWidth={2}
                     spring="snappy"
                     reducedMotion="user"
                   />
@@ -183,148 +251,99 @@ function HomePage() {
         </TooltipGroup>
       </header>
 
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-copy">
-          <h1 id="hero-title">
-            <TextReveal
-              text="Hey, I'm IuCC. I build web tools and game infrastructure."
-              by="word"
-              stagger={0.045}
-              maxDuration={1.4}
-              startOnView={false}
-            />
-          </h1>
-          <p className="hero-summary">
-            I'm building SwiftServers, free Minecraft hosting with a browser
-            dashboard for launching and managing Paper, Spigot, and Fabric
-            servers.
-          </p>
-          <div className="hero-actions">
-            <PressableLink
-              href={project.href}
-              target="_blank"
-              rel="noreferrer"
-              className="primary-action"
-              icon={ArrowUpRight}
-              hoverIcon={ExternalLink}
-            >
-              Explore SwiftServers
-            </PressableLink>
-            <PressableLink
-              href="https://github.com/IuCC123"
-              target="_blank"
-              rel="noreferrer"
-              className="secondary-action"
-              brandIcon={SiGithub}
-            >
-              GitHub
-            </PressableLink>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="project"
-        className="content-section project-section"
-        aria-label="SwiftServers project"
-      >
-        <a
-          className="project-stage"
-          href={project.href}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Open SwiftServers"
-          onPointerEnter={() => setProjectActive(true)}
-          onPointerLeave={() => setProjectActive(false)}
-          onFocus={() => setProjectActive(true)}
-          onBlur={() => setProjectActive(false)}
-        >
-          <BlurUpImage
-            src={project.previewImage}
-            alt="SwiftServers homepage showing free Minecraft hosting"
-            width={1800}
-            height={978}
-            color="#101918"
-            radius={14}
-            loading="eager"
-            fetchPriority="high"
-            className="project-image"
-          />
-          <div className="project-caption">
-            <div>
-              <h2>{project.label}</h2>
-              <p>{project.description}</p>
-            </div>
-            <span className="project-open" aria-hidden="true">
-              <MorphIcon
-                icon={projectActive ? ArrowUpRight : ExternalLink}
-                size={17}
-                strokeWidth={2}
-                spring="snappy"
-                reducedMotion="user"
+      <main id="main">
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <h1 id="hero-title">
+              <TextReveal
+                text="Hey, I'm IuCC."
+                by="word"
+                stagger={0.06}
+                startOnView={false}
+                className="hero-line"
               />
-            </span>
+              <TextReveal
+                text="I build web tools, self-hosted apps and game infrastructure."
+                by="word"
+                stagger={0.04}
+                maxDuration={1.2}
+                startOnView={false}
+                play={secondLine}
+                className="hero-line hero-line-muted"
+              />
+            </h1>
+            <p className="hero-summary">
+              Right now that means free Minecraft hosting, a media server you
+              run yourself, a small macOS app and a Rust proxy for AI
+              subscriptions. Most of it is open source.
+            </p>
+            <div className="hero-actions">
+              <PressableLink
+                href="#projects"
+                className="button button-primary"
+                icon={ArrowDown}
+              >
+                See projects
+              </PressableLink>
+              <PressableLink
+                href="https://github.com/IuCC123"
+                className="button button-secondary"
+                brandIcon={SiGithub}
+                external
+              >
+                GitHub
+              </PressableLink>
+            </div>
           </div>
-        </a>
-      </section>
+        </section>
 
-      <section
-        id="activity"
-        className="content-section activity-section"
-        aria-labelledby="activity-title"
-      >
-        <div className="section-heading">
-          <h2 id="activity-title">GitHub activity</h2>
-          <PressableLink
-            href="https://github.com/IuCC123"
-            target="_blank"
-            rel="noreferrer"
-            icon={ArrowUpRight}
-            hoverIcon={ExternalLink}
-          >
-            View profile
-          </PressableLink>
-        </div>
-        <div className="github-activity">
-          <GithubGraph
-            account="IuCC123"
-            months={9}
-            variant="github"
-            animation="cascade"
-            animationSpeed={1.4}
-            cellSize={21}
-            cellGap={4}
-            cellRadius={5}
-            ambientEffect="twinkle"
-            ambientIntensity={0.7}
-            showLegend
-            showAccount={false}
+        <section
+          id="projects"
+          className="section"
+          aria-labelledby="projects-title"
+        >
+          <SectionHeading
+            id="projects-title"
+            title="Projects"
+            link={{
+              href: "https://github.com/IuCC123?tab=repositories",
+              label: "All repositories",
+            }}
           />
-        </div>
-      </section>
+          <Projects />
+        </section>
 
-      <section
-        id="stack"
-        className="content-section stack-area"
-        aria-labelledby="stack-title"
-      >
-        <div className="section-heading stack-heading">
-          <h2 id="stack-title">Tools I use</h2>
-          <p>
-            Open a category to see the languages, frameworks, databases, and
-            tools in my projects.
-          </p>
-        </div>
-        <TechSections />
-      </section>
+        <section
+          id="activity"
+          className="section"
+          aria-labelledby="activity-title"
+        >
+          <SectionHeading
+            id="activity-title"
+            title="GitHub activity"
+            link={{ href: "https://github.com/IuCC123", label: "View profile" }}
+          />
+          <ActivityGraph />
+        </section>
+
+        <section id="stack" className="section" aria-labelledby="stack-title">
+          <SectionHeading id="stack-title" title="Tools I use" />
+          <TechSections />
+        </section>
+      </main>
 
       <footer className="site-footer">
-        <p>Built by IuCC with React and Motion.</p>
-        <PressableLink href="mailto:iucc@duck.com" icon={Mail} hoverIcon={Send}>
+        <p>© {new Date().getFullYear()} IuCC</p>
+        <PressableLink
+          href="mailto:iucc@duck.com"
+          className="footer-link"
+          icon={Mail}
+          hoverIcon={Send}
+        >
           iucc@duck.com
         </PressableLink>
       </footer>
-    </main>
+    </div>
   );
 }
 

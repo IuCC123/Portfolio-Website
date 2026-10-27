@@ -3,7 +3,8 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@/lib/utils";
 
-export type GithubGraphVariant = "github" | "graphite" | "ocean" | "violet";
+export type GithubGraphVariant =
+  "github" | "graphite" | "ocean" | "violet" | "oled";
 export type GithubGraphAnimation = "wave" | "scan" | "cascade";
 export type GithubGraphAmbientEffect = "none" | "tide" | "drift" | "twinkle";
 
@@ -65,6 +66,7 @@ const VARIANTS: Record<
   graphite: ["#eeeeee", "#cccccc", "#969696", "#5f5f5f", "#171717"],
   ocean: ["#e6f5ff", "#b4e2ff", "#62bdf5", "#2585d8", "#124e93"],
   violet: ["#f2eaff", "#dcc5ff", "#b486ff", "#8355df", "#52269c"],
+  oled: ["#161616", "#0f4a37", "#17795a", "#25b083", "#35d5a4"],
 };
 
 function dateFromISO(value: string): Date | null {
@@ -176,6 +178,12 @@ function formatContributionLabel(contribution: GithubContributionCell): string {
   }).format(dateFromISO(contribution.date) ?? new Date());
   const label = contribution.count === 1 ? "contribution" : "contributions";
   return `${contribution.count} ${label} · ${date}`;
+}
+
+function weekHasMonthStart(week: GithubContributionWeek): boolean {
+  return week.some(
+    (contribution) => dateFromISO(contribution.date)?.getUTCDate() === 1,
+  );
 }
 
 function formatMonthLabel(week: GithubContributionWeek): string | null {
@@ -451,13 +459,14 @@ export function GithubGraph({
             >
               {weeks.map((week, weekIndex) => {
                 const label = formatMonthLabel(week);
-                const isFirstWeek = weekIndex === 0;
-                const hasMonthStart = week.some(
-                  (contribution) =>
-                    dateFromISO(contribution.date)?.getUTCDate() === 1,
-                );
+                const hasMonthStart = weekHasMonthStart(week);
+                const labelsPartialFirstWeek =
+                  weekIndex === 0 &&
+                  !hasMonthStart &&
+                  weeks.findIndex(weekHasMonthStart) >= 3;
 
-                if (!label || (!isFirstWeek && !hasMonthStart)) return null;
+                if (!label || (!hasMonthStart && !labelsPartialFirstWeek))
+                  return null;
 
                 return (
                   <span

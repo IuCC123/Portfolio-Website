@@ -12,6 +12,7 @@ My portfolio, built with Bun, React, Vite, Tailwind CSS, and Motion.
 - Motion
 - Interior.dev components
 - Morphicons
+- Geist and Geist Mono
 
 ## Development
 
@@ -53,15 +54,18 @@ bun run preview
 
 ```text
 src/
-  main.tsx                  App entry and page content
+  main.tsx                  App entry, layout and hero
+  Projects.tsx              Project cards
   TechSections.tsx          Technology stack
-  styles.css                Global styles
+  styles.css                Global styles and theme tokens
   components/
     interior/               Interaction components
     unlumen-ui/             GitHub activity graph
 public/
-  new-bg.jpeg               Hero background
-  swift-new.jpeg            SwiftServers preview
+  favicon.svg               IuCC monogram (also used as the header logo)
+  favicon.ico               16, 32 and 48 px fallback
+  apple-touch-icon.png      180 px home screen icon
+  projects/                 Project screenshots and icons
 ```
 
 ## License
