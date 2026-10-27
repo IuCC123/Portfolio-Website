@@ -1,5 +1,5 @@
 import React from "react";
-import { useReducedMotion } from "motion/react";
+import { afterPageIdle } from "@/lib/idle";
 import {
   MONOGRAM_HEIGHT,
   pose,
@@ -125,7 +125,7 @@ export default function AsciiHero({
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const slotRef = React.useRef<HTMLButtonElement>(null);
   const spinStart = React.useRef<number | null>(null);
-  const reduced = Boolean(useReducedMotion());
+  const [still, setStill] = React.useState(false);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;
@@ -133,8 +133,13 @@ export default function AsciiHero({
     const ctx = canvas?.getContext("2d");
     if (!canvas || !slot || !ctx) return;
 
-    const start = performance.now();
-    if (!reduced) spinStart.current = start + INTRO_MS + 300;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    setStill(reduced);
+
+    let start = 0;
+    let started = false;
 
     let width = 0;
     let height = 0;
@@ -349,6 +354,7 @@ export default function AsciiHero({
     };
 
     const play = () => {
+      if (!started) return;
       if (reduced) draw(performance.now());
       else if (!raf && visible) raf = requestAnimationFrame(loop);
     };
@@ -379,14 +385,23 @@ export default function AsciiHero({
     }
 
     let disposed = false;
-    document.fonts.ready.then(() => {
+    let cancelIdle = () => {};
+    const begin = () => {
       if (disposed) return;
+      start = performance.now();
+      lastDraw = start;
+      started = true;
+      if (!reduced) spinStart.current = start + INTRO_MS + 300;
       measure();
       play();
+    };
+    document.fonts.ready.then(() => {
+      if (!disposed) cancelIdle = afterPageIdle(begin);
     });
 
     return () => {
       disposed = true;
+      cancelIdle();
       cancelAnimationFrame(raf);
       resize.disconnect();
       intersection.disconnect();
@@ -396,7 +411,7 @@ export default function AsciiHero({
         onPointerLeave,
       );
     };
-  }, [reduced, avoidRef]);
+  }, [avoidRef]);
 
   return (
     <>
@@ -406,7 +421,7 @@ export default function AsciiHero({
         type="button"
         className="hero-art"
         aria-label="Spin the IuCC logo"
-        disabled={reduced}
+        disabled={still}
         onClick={() => {
           if (spinStart.current === null) spinStart.current = performance.now();
         }}

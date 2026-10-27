@@ -1,5 +1,4 @@
-import { LuArrowUpRight } from "react-icons/lu";
-import { SiGithub } from "react-icons/si";
+import { ArrowUpRightIcon, GitHubIcon } from "./icons";
 
 type ProjectLink = {
   label: "Website" | "Source";
@@ -7,67 +6,77 @@ type ProjectLink = {
 };
 
 type Project = {
+  slug: string;
   name: string;
   kind: string;
   summary: string;
   icon: string;
-  image: { src: string; alt: string };
+  imageAlt: string;
   links: readonly [ProjectLink, ...ProjectLink[]];
 };
 
+const IMAGE_WIDTHS = [480, 640, 720, 960, 1280] as const;
+const IMAGE_SIZES =
+  "(max-width: 48rem) calc(100vw - 2rem), (max-width: 63rem) calc(50vw - 2rem), 472px";
+
+const assets = import.meta.glob<string>("./assets/projects/**/*", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
+
+function asset(file: string): string {
+  const url = assets[`./assets/projects/${file}`];
+  if (!url) throw new Error(`Missing project asset: ${file}`);
+  return url;
+}
+
 const projects = [
   {
+    slug: "swiftservers",
     name: "SwiftServers",
     kind: "Minecraft hosting",
     summary:
       "Free Minecraft server hosting with a browser dashboard, one-click plugins, DDoS protection and a hub that helps players find your server.",
-    icon: "/projects/icons/swiftservers.png",
-    image: {
-      src: "/projects/swiftservers.jpg",
-      alt: "SwiftServers homepage: free Minecraft hosting, without the catch",
-    },
+    icon: "icons/swiftservers.webp",
+    imageAlt:
+      "SwiftServers homepage: free Minecraft hosting, without the catch",
     links: [{ label: "Website", href: "https://swiftservers.org" }],
   },
   {
+    slug: "nuvora",
     name: "Nuvora",
     kind: "Media server · Rust",
     summary:
       "A free, open-source media server for movies, shows and anime, with on-the-fly conversion, Watch Together and TV apps.",
-    icon: "/projects/icons/nuvora.svg",
-    image: {
-      src: "/projects/nuvora.jpg",
-      alt: "Nuvora homepage: Plex's polish, Jellyfin's freedom",
-    },
+    icon: "icons/nuvora.svg",
+    imageAlt: "Nuvora homepage: Plex's polish, Jellyfin's freedom",
     links: [
       { label: "Website", href: "https://getnuvora.online" },
       { label: "Source", href: "https://github.com/IuCC123/nuvora" },
     ],
   },
   {
+    slug: "bendmac",
     name: "BendMac",
     kind: "macOS app · Swift",
     summary:
       "A native macOS app that gently blurs your desktop as you close your MacBook's lid. Free and open source.",
-    icon: "/projects/icons/bendmac.png",
-    image: {
-      src: "/projects/bendmac.jpg",
-      alt: "BendMac homepage: a softer side of your Mac",
-    },
+    icon: "icons/bendmac.webp",
+    imageAlt: "BendMac homepage: a softer side of your Mac",
     links: [
       { label: "Website", href: "https://bendmac.app" },
       { label: "Source", href: "https://github.com/IuCC123/BendMac" },
     ],
   },
   {
+    slug: "cliproxyapi",
     name: "CLIProxyAPI-Rust",
     kind: "AI API proxy · Rust",
     summary:
       "Your Claude, ChatGPT and Gemini subscriptions as one fast API. A single Rust binary with compatible endpoints and a built-in dashboard.",
-    icon: "/projects/icons/cliproxyapi.svg",
-    image: {
-      src: "/projects/cliproxyapi.jpg",
-      alt: "CLIProxyAPI-Rust dashboard showing traffic and account limits",
-    },
+    icon: "icons/cliproxyapi.svg",
+    imageAlt: "CLIProxyAPI-Rust dashboard showing traffic and account limits",
     links: [
       { label: "Source", href: "https://github.com/IuCC123/CLIProxyAPI-Rust" },
     ],
@@ -81,10 +90,14 @@ function ProjectCard({ project }: { project: Project }) {
     <article className="project-card">
       <div className="project-media">
         <img
-          src={project.image.src}
-          alt={project.image.alt}
-          width={1600}
-          height={1000}
+          src={asset(`${project.slug}-960.webp`)}
+          srcSet={IMAGE_WIDTHS.map(
+            (width) => `${asset(`${project.slug}-${width}.webp`)} ${width}w`,
+          ).join(", ")}
+          sizes={IMAGE_SIZES}
+          alt={project.imageAlt}
+          width={1280}
+          height={800}
           loading="lazy"
           decoding="async"
         />
@@ -92,7 +105,7 @@ function ProjectCard({ project }: { project: Project }) {
 
       <div className="project-body">
         <div className="project-title">
-          <img src={project.icon} alt="" width={20} height={20} />
+          <img src={asset(project.icon)} alt="" width={20} height={20} />
           <h3>
             <a
               className="project-primary-link"
@@ -119,10 +132,12 @@ function ProjectCard({ project }: { project: Project }) {
               tabIndex={link === primary ? -1 : undefined}
               aria-label={`${project.name} ${link.label.toLowerCase()}`}
             >
-              {link.label === "Source" ? <SiGithub aria-hidden="true" /> : null}
+              {link.label === "Source" ? (
+                <GitHubIcon aria-hidden="true" />
+              ) : null}
               {link.label}
               {link.label === "Website" ? (
-                <LuArrowUpRight aria-hidden="true" />
+                <ArrowUpRightIcon aria-hidden="true" />
               ) : null}
             </a>
           ))}
