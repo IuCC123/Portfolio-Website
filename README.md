@@ -62,9 +62,11 @@ src/
   AsciiHero.tsx             Animated ASCII monogram behind the hero
   Projects.tsx              Project cards
   TechSections.tsx          Technology stack
+  Series.tsx                Favorite series cards
   icons.tsx                 Inline SVG icons used above the fold
   styles.css                Global styles and theme tokens
   assets/projects/          Project screenshots and icons
+  assets/series/            Series key art
   lib/
     monogram.ts             3D signed-distance model of the IuCC monogram
     github-stars.ts         Star count helpers

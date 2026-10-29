@@ -13,6 +13,7 @@ import { usePressDepth } from "@/components/interior/press-depth";
 import { Tooltip, TooltipGroup } from "@/components/interior/tooltip-group";
 import AsciiHero from "./AsciiHero";
 import Projects from "./Projects";
+import FavoriteSeries from "./Series";
 
 const TechSections = React.lazy(() => import("./TechSections"));
 const GithubGraph = React.lazy(() =>
@@ -274,6 +275,7 @@ export default function App() {
           <a href="#projects">Projects</a>
           <a href="#activity">Activity</a>
           <a href="#stack">Stack</a>
+          <a href="#series">Series</a>
         </nav>
 
         <TooltipGroup className="socials">
@@ -387,6 +389,15 @@ export default function App() {
           <React.Suspense fallback={null}>
             <TechSections />
           </React.Suspense>
+        </section>
+
+        <section
+          id="series"
+          className="section"
+          aria-labelledby="series-title"
+        >
+          <SectionHeading id="series-title" title="Favorite series" />
+          <FavoriteSeries />
         </section>
       </main>
 
