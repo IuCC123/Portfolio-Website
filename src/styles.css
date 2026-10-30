@@ -145,12 +145,71 @@ p {
   align-items: center;
   height: var(--header-height);
   margin: 0.75rem calc(var(--bleed) * -1) 0;
-  padding-inline: calc(var(--bleed) - 1px);
-  border: 1px solid var(--line);
-  border-radius: 0.875rem;
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  padding-inline: var(--bleed);
+  border-radius: calc(var(--header-height) / 2);
+  box-shadow:
+    0 18px 40px -16px rgba(0, 0, 0, 0.9),
+    0 4px 12px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* Liquid glass. Every layer fills the parent and shares its corners, under
+   the parent's content. */
+
+.liquid-glass,
+.liquid-glass > * {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.liquid-glass {
+  z-index: -1;
+}
+
+.liquid-glass > .liquid-glass-defs {
+  inset: auto;
+  width: 0;
+  height: 0;
+}
+
+/* Frosted glass for browsers that cannot refract the backdrop. */
+.liquid-glass-lens {
+  overflow: hidden;
+  background: rgba(12, 12, 14, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px) saturate(170%) brightness(0.8);
+}
+
+.liquid-glass[data-lit] .liquid-glass-lens {
+  box-shadow: none;
+}
+
+.liquid-glass[data-refract] .liquid-glass-lens {
+  background: rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(4px) var(--glass-refraction) saturate(1.8)
+    brightness(0.55);
+}
+
+/* No blend modes in here: blending isolates the group, and the lens would
+   then refract an empty backdrop. */
+.liquid-glass-light {
+  width: 100%;
+  height: 100%;
+}
+
+/* The pointer's light, mostly caught by the rim with a faint glow through
+   the body of the glass. */
+.liquid-glass-glint {
+  background: radial-gradient(
+    circle 6rem at var(--glint-x, 50%) var(--glint-y, 50%),
+    rgba(255, 255, 255, 0.65),
+    transparent 70%
+  );
+  mask-image: var(--glass-rim), linear-gradient(#0000001a 0 0);
+  mask-size: 100% 100%;
+  opacity: 0;
+  transition: opacity 300ms ease;
 }
 
 .brand {
@@ -169,23 +228,40 @@ p {
   height: 1.75rem;
 }
 
+/* Links touch so the droplet can slide between them without dropping off. */
 .site-nav {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
 }
 
 .site-nav a {
+  position: relative;
   display: inline-flex;
   height: 2.25rem;
   align-items: center;
-  padding-inline: 0.75rem;
-  border-radius: 0.5rem;
-  color: var(--muted);
+  padding-inline: 1rem;
+  border-radius: 999px;
+  color: #c4c4c4;
   font-size: 0.875rem;
-  transition:
-    color 150ms ease,
-    background-color 150ms ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  transition: color 150ms ease;
+}
+
+/* A smaller bead of the same glass, catching light on its top edge. */
+.glass-droplet {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.05)
+  );
+  box-shadow:
+    inset 0 1px 0.5px rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0.5px rgba(255, 255, 255, 0.06),
+    0 6px 14px -6px rgba(0, 0, 0, 0.7);
 }
 
 .socials {
@@ -196,15 +272,15 @@ p {
 }
 
 .icon-link {
+  position: relative;
   display: grid;
   width: 2.25rem;
   height: 2.25rem;
   place-items: center;
-  border-radius: 0.5rem;
-  color: var(--muted);
-  transition:
-    color 150ms ease,
-    background-color 150ms ease;
+  border-radius: 999px;
+  color: #c4c4c4;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+  transition: color 150ms ease;
 }
 
 .icon-link svg {
@@ -899,10 +975,13 @@ p {
 }
 
 @media (hover: hover) {
+  :hover > .liquid-glass[data-lit] .liquid-glass-glint {
+    opacity: 1;
+  }
+
   .site-nav a:hover,
   .icon-link:hover {
     color: var(--fg);
-    background: var(--surface-raised);
   }
 
   .icon-link:hover {
@@ -1065,7 +1144,23 @@ p {
   }
 }
 
+@media (prefers-reduced-transparency: reduce) {
+  .liquid-glass .liquid-glass-lens {
+    background: var(--surface-raised);
+    backdrop-filter: none;
+  }
+}
+
 @media (forced-colors: active) {
+  .liquid-glass {
+    display: none;
+  }
+
+  .site-header {
+    outline: 1px solid CanvasText;
+    background: Canvas;
+  }
+
   a:focus-visible,
   .project-primary-link:focus-visible::after,
   .series-primary-link:focus-visible::after {

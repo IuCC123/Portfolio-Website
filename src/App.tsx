@@ -11,6 +11,7 @@ import {
 } from "./icons";
 import { usePressDepth } from "@/components/interior/press-depth";
 import { Tooltip, TooltipGroup } from "@/components/interior/tooltip-group";
+import { LiquidGlass } from "@/components/liquid-glass";
 import AsciiHero from "./AsciiHero";
 import Projects from "./Projects";
 import FavoriteSeries from "./Series";
@@ -62,6 +63,36 @@ const socialLinks = [
     color: "#ff66aa",
   },
 ] satisfies readonly SocialLink[];
+
+const sections = [
+  { href: "#projects", label: "Projects" },
+  { href: "#activity", label: "Activity" },
+  { href: "#stack", label: "Stack" },
+  { href: "#series", label: "Series" },
+] as const;
+
+// One droplet of glass that slides to whichever header link the pointer or
+// focus is on, instead of each link lighting its own background.
+function dropletKey(target: EventTarget): string | null {
+  if (!(target instanceof Element)) return null;
+  return target.closest<HTMLElement>("[data-droplet]")?.dataset.droplet ?? null;
+}
+
+function GlassDroplet() {
+  const reduced = useReducedMotion();
+  return (
+    <motion.span
+      layoutId="header-droplet"
+      className="glass-droplet"
+      aria-hidden="true"
+      transition={
+        reduced
+          ? { duration: 0 }
+          : { type: "spring", stiffness: 480, damping: 34, mass: 0.7 }
+      }
+    />
+  );
+}
 
 type PressableLinkProps = {
   href: string;
@@ -256,7 +287,7 @@ function ActivityGraph() {
 }
 
 export default function App() {
-  const [activeSocial, setActiveSocial] = React.useState<string | null>(null);
+  const [droplet, setDroplet] = React.useState<string | null>(null);
   const heroCopyRef = React.useRef<HTMLDivElement>(null);
 
   return (
@@ -265,17 +296,34 @@ export default function App() {
         Skip to content
       </a>
 
-      <header className="site-header">
+      <header
+        className="site-header"
+        onPointerOver={(event) => setDroplet(dropletKey(event.target))}
+        onPointerLeave={() => setDroplet(null)}
+        onFocus={(event) => setDroplet(dropletKey(event.target))}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) {
+            setDroplet(null);
+          }
+        }}
+      >
+        <LiquidGlass />
         <a className="brand" href="#top" aria-label="IuCC, back to top">
           <img src="/favicon.svg" alt="" width={28} height={28} />
           <span>IuCC</span>
         </a>
 
         <nav className="site-nav" aria-label="Page sections">
-          <a href="#projects">Projects</a>
-          <a href="#activity">Activity</a>
-          <a href="#stack">Stack</a>
-          <a href="#series">Series</a>
+          {sections.map((section) => (
+            <a
+              key={section.href}
+              href={section.href}
+              data-droplet={section.href}
+            >
+              {droplet === section.href ? <GlassDroplet /> : null}
+              {section.label}
+            </a>
+          ))}
         </nav>
 
         <TooltipGroup className="socials">
@@ -288,17 +336,15 @@ export default function App() {
                 aria-label={link.label}
                 className="icon-link"
                 style={{ "--brand": link.color } as React.CSSProperties}
-                onPointerEnter={() => setActiveSocial(link.label)}
-                onPointerLeave={() => setActiveSocial(null)}
-                onFocus={() => setActiveSocial(link.label)}
-                onBlur={() => setActiveSocial(null)}
+                data-droplet={link.label}
               >
+                {droplet === link.label ? <GlassDroplet /> : null}
                 {link.kind === "brand" ? (
                   <link.icon aria-hidden="true" />
                 ) : (
                   <MorphIcon
                     icon={
-                      activeSocial === link.label ? link.hoverIcon : link.icon
+                      droplet === link.label ? link.hoverIcon : link.icon
                     }
                     size={16}
                     strokeWidth={2}
